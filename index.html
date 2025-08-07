@@ -40,7 +40,7 @@
     .shooting-star {
       position: absolute;
       width: 2px;
-      height: 80px;
+      height: 100px;
       background: white;
       opacity: 0.8;
       border-radius: 2px;
@@ -55,7 +55,7 @@
         opacity: 1;
       }
       100% {
-        transform: translate(300px, 600px) rotate(45deg);
+        transform: translate(600px, 600px) rotate(45deg);
         opacity: 0;
       }
     }
@@ -89,8 +89,13 @@
       for (let i = 0; i < 5; i++) {
         const star = document.createElement('div');
         star.classList.add('shooting-star');
-        star.style.left = Math.random() * window.innerWidth + "px";
-        star.style.top = Math.random() * window.innerHeight / 2 + "px";
+
+        // 시작 위치: 화면 왼쪽 상단 30% 영역에서 랜덤
+        const startX = Math.random() * window.innerWidth * 0.3;
+        const startY = Math.random() * window.innerHeight * 0.3;
+        star.style.left = `${startX}px`;
+        star.style.top = `${startY}px`;
+
         document.body.appendChild(star);
         setTimeout(() => star.remove(), 1600);
       }
@@ -115,13 +120,19 @@
     function changeEmotion() {
       if (isLocked) return;
 
-      // '그냥...' → 다음 문장 전에 별똥별
+      // '그냥...' → 페이드 아웃 후 별똥별 등장
       if (index === 2) {
+        isLocked = true;
         fadeAndChangeText(sentences[index], colors[index], () => {
-          createShootingStar(); // ✨별똥별 떨어짐
-        }, 1600); // 느리게 페이드
-
-        index++;
+          setTimeout(() => {
+            createShootingStar(); // 별똥별 떨어짐
+            index++;
+            fadeAndChangeText(sentences[index], colors[index], () => {
+              isLocked = false;
+              index = (index + 1) % sentences.length;
+            });
+          }, 1200); // 텍스트 사라진 후 잠시 있다가 별똥별 시작
+        }, 1200);
       } else {
         fadeAndChangeText(sentences[index], colors[index]);
         index = (index + 1) % sentences.length;
