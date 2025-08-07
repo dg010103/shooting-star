@@ -17,12 +17,12 @@
       font-family: 'Gowun Dodum', sans-serif;
       font-size: 1.5rem;
       text-align: center;
-      transition: background-color 0.8s ease, color 0.8s ease;
+      transition: background-color 1s ease;
     }
 
     #text {
       opacity: 1;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.8s ease;
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* 글로우 효과 */
     }
 
@@ -59,6 +59,7 @@
     const bgm = document.getElementById('bgm');
 
     function changeEmotion() {
+      textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
 
       setTimeout(() => {
@@ -67,7 +68,7 @@
         document.body.style.backgroundColor = colors[index];
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-      }, 300);
+      }, 900); // fade-out 완료 후 새 문장 등장
 
       if (bgm.paused) {
         bgm.play().catch(() => {});
