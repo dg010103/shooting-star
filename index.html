@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>별똥별</title>
+  <!-- Spoqa Han Sans 웹폰트 링크 -->
+  <link href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@2.1/css/SpoqaHanSans-kr.css" rel="stylesheet" type="text/css" />
   <style>
     body {
       margin: 0;
@@ -13,38 +15,37 @@
       align-items: center;
       background-color: #434773;
       color: white;
-      font-family: sans-serif;
+      font-family: 'Spoqa Han Sans', sans-serif;
       font-size: 1.5rem;
+      font-weight: 700; /* 폰트 굵기 */
       text-align: center;
-      transition: background-color 0.5s ease;
+      transition: background-color 0.5s ease, color 0.5s ease;
     }
 
     #text {
       opacity: 0;
-      transition: opacity 1.5s ease;
+      transition: opacity 1.2s ease; /* 느린 페이드 */
     }
 
-    #text.show {
+    #text.fade-in {
       opacity: 1;
     }
   </style>
 </head>
 <body onclick="changeEmotion()">
-  <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
+  <div id="text" class="fade-in">별똥별이에요 어서 소원을 빌어요!</div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
 
   <script>
     const sentences = [
       "별똥별이에요 어서 소원을 빌어요!",
-      "왜 소원을 빌어요..?",
-      "그냥...",
+      "그냥…",
       "별이 떨어지면 빌어야 하니까요..."
     ];
 
     const colors = [
-      "#434773", // 밤하늘 보라
+      "#434773",
       "#494171",
-      "#4b3c6f",
       "#564166"
     ];
 
@@ -56,25 +57,19 @@
       index = (index + 1) % sentences.length;
 
       // 페이드 아웃
-      textEl.classList.remove("show");
-
-      // 문장과 배경색 변경 후 페이드 인
+      textEl.classList.remove('fade-in');
       setTimeout(() => {
         textEl.textContent = sentences[index];
         document.body.style.backgroundColor = colors[index];
-        textEl.classList.add("show");
-      }, 300); // 페이드아웃 시간 조절
 
-      // 배경음악 재생
+        // 페이드 인
+        textEl.classList.add('fade-in');
+      }, 100); // 짧은 텀 후 변경
+
       if (bgm.paused) {
         bgm.play().catch(() => {});
       }
     }
-
-    // 처음 진입 시 첫 문장 바로 보여주기
-    window.onload = () => {
-      textEl.classList.add("show");
-    };
   </script>
 </body>
 </html>
