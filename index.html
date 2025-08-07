@@ -32,6 +32,15 @@
     .fade-in {
       opacity: 1;
     }
+
+    .blink {
+      animation: blinkFade 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blinkFade {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
   </style>
 </head>
 <body onclick="changeEmotion()">
@@ -58,32 +67,43 @@
     const bgm = document.getElementById('bgm');
     let isLocked = false;
 
-    function fadeAndChangeText(text, color) {
+    function fadeAndChangeText(text, color, blink = false) {
       textEl.classList.add('fade-out');
+
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
+
+        if (blink) {
+          textEl.classList.add('blink');
+        } else {
+          textEl.classList.remove('blink');
+        }
+
+        setTimeout(() => {
+          textEl.classList.remove('fade-in');
+        }, 800);
       }, 400);
     }
 
     function changeEmotion() {
       if (isLocked) return;
 
-      if (index === 1) {
-        // 그냥... → 자동 다음 문장
+      if (index === 2) {
+        // "그냥..." → 깜빡이면서 정지, 이후 자동 전환
         isLocked = true;
-        fadeAndChangeText(sentences[index], colors[index]);
+        fadeAndChangeText(sentences[index], colors[index], true);
         index++;
         setTimeout(() => {
-          fadeAndChangeText(sentences[index], colors[index]);
+          fadeAndChangeText(sentences[index], colors[index], false);
           index = (index + 1) % sentences.length;
           isLocked = false;
-        }, 3000);
+        }, 4000); // 깜빡이며 정지 시간
       } else {
         fadeAndChangeText(sentences[index], colors[index]);
-        index = (index + 1) % sentences.length;
+        index++;
       }
 
       if (bgm.paused) {
