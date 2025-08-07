@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>별똥별</title>
   <style>
     body {
@@ -16,7 +16,17 @@
       font-family: sans-serif;
       font-size: 1.5rem;
       text-align: center;
-      transition: background-color 0.5s ease, color 0.5s ease;
+      transition: background-color 0.5s ease;
+    }
+
+    #text {
+      opacity: 0;
+      transition: opacity 1s ease;
+      white-space: pre-line; /* 줄바꿈을 유지 */
+    }
+
+    #text.show {
+      opacity: 1;
     }
   </style>
 </head>
@@ -28,13 +38,13 @@
     const sentences = [
       "별똥별이에요 어서 소원을 빌어요!",
       "왜 소원을 빌어요..?",
-      "그냥.. 별이 떨어지면 빌어야 하니까요..."
+      "그냥..\n별이 떨어지면빌어야 하니까요..."
     ];
 
     const colors = [
-      "#434773", // black
-      "#494171",
-      "#564166"
+      "#434773", // 밤하늘 보라
+      "#494171", // 더 어두운 보라
+      "#564166"  // 가장 짙은 톤
     ];
 
     let index = 0;
@@ -43,13 +53,27 @@
 
     function changeEmotion() {
       index = (index + 1) % sentences.length;
-      textEl.textContent = sentences[index];
-      document.body.style.backgroundColor = colors[index];
 
+      // 페이드 아웃
+      textEl.classList.remove("show");
+
+      // 문장 변경 및 페이드 인
+      setTimeout(() => {
+        textEl.textContent = sentences[index];
+        document.body.style.backgroundColor = colors[index];
+        textEl.classList.add("show");
+      }, 300); // 페이드아웃 후 텍스트 변경
+
+      // 배경 음악 재생
       if (bgm.paused) {
-        bgm.play().catch(() => {}); // Autoplay block 대응
+        bgm.play().catch(() => {});
       }
     }
+
+    // 첫 문장은 바로 보여지도록 처리
+    window.onload = () => {
+      textEl.classList.add("show");
+    };
   </script>
 </body>
 </html>
