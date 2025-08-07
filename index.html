@@ -4,12 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>별똥별</title>
-
-  <!-- 프리로드 -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" as="style">
-  <link rel="preload" href="music.mp3" as="audio" type="audio/mpeg">
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
-
   <style>
     body {
       margin: 0;
@@ -22,13 +17,13 @@
       font-family: 'Gowun Dodum', sans-serif;
       font-size: 1.5rem;
       text-align: center;
-      transition: background-color 0.8s ease, color 0.8s ease;
+      transition: background-color 1.2s ease;
     }
 
     #text {
       opacity: 1;
-      transition: opacity 0.8s ease;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      transition: opacity 1.2s ease;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* 글로우 강화 */
     }
 
     .fade-out {
@@ -38,40 +33,25 @@
     .fade-in {
       opacity: 1;
     }
-
-    /* 프리렌더용 숨김 텍스트 */
-    #preload-texts {
-      visibility: hidden;
-      height: 0;
-      overflow: hidden;
-      position: absolute;
-    }
   </style>
 </head>
 <body onclick="changeEmotion()">
   <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
 
-  <!-- 미리 렌더링용 텍스트 (보이지 않음) -->
-  <div id="preload-texts">
-    <div>왜요..?</div>
-    <div>그냥...</div>
-    <div>별이 떨어지면 빌어야 하니까요...</div>
-  </div>
-
   <script>
     const sentences = [
       "별똥별이에요 어서 소원을 빌어요!",
-      "왜요..?",
+      "왜요...?",
       "그냥...",
       "별이 떨어지면 빌어야 하니까요..."
     ];
 
     const colors = [
-      "#434773",
-      "#494171",
-      "#564166",
-      "#5e3a5e"
+      "#434773", // 밤하늘 중 차가운 보라
+      "#494171", // 조금 더 어두운 보라
+      "#564166", // 감정의 심연
+      "#3c2c4f"  // 가장 특별한 밤하늘의 감정 (예: 보랏빛 별무리)
     ];
 
     let index = 0;
@@ -79,22 +59,35 @@
     const bgm = document.getElementById('bgm');
     let isLocked = false;
 
-    function fadeAndChangeText(text, color) {
-      textEl.classList.remove('fade-in');
+    function fadeAndChangeText(text, color, delay = 400) {
       textEl.classList.add('fade-out');
 
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
+      }, delay / 2);
+
+      setTimeout(() => {
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-      }, 400); // 페이드 중간쯤 교체
+      }, delay);
     }
 
     function changeEmotion() {
       if (isLocked) return;
 
       fadeAndChangeText(sentences[index], colors[index]);
+
+      // '그냥...' 이후 자동 전환
+      if (index === 2) {
+        isLocked = true;
+        setTimeout(() => {
+          index++;
+          fadeAndChangeText(sentences[index], colors[index]);
+          isLocked = false;
+        }, 2800); // 여유 시간 추가
+      }
+
       index = (index + 1) % sentences.length;
 
       if (bgm.paused) {
