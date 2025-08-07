@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>별똥별</title>
-  <link href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@2.1/css/SpoqaHanSans-kr.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -14,72 +14,75 @@
       align-items: center;
       background-color: #434773;
       color: white;
-      font-family: 'Spoqa Han Sans', sans-serif;
+      font-family: 'Gowun Dodum', sans-serif;
       font-size: 1.5rem;
-      font-weight: 500;
       text-align: center;
-      transition: background-color 0.5s ease, color 0.5s ease;
+      transition: background-color 0.8s ease, color 0.8s ease;
     }
 
     #text {
       opacity: 0;
-      transition: opacity 1.2s ease;
+      transition: opacity 1.5s ease;
     }
 
-    #text.fade-in {
+    .fade-in {
       opacity: 1;
     }
   </style>
 </head>
-<body>
+<body onclick="changeEmotion()">
   <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
 
   <script>
     const sentences = [
       "별똥별이에요 어서 소원을 빌어요!",
-      "왜요..?",
-      "그냥..",
-      "별이 떨어지면 빌어야 하니까요."
+      "그냥...",
+      "별이 떨어지면 빌어야 하니까요..."
     ];
 
     const colors = [
       "#434773",
       "#494171",
-      "#564166",
-      "#5e3a5e"
+      "#564166"
     ];
 
     let index = 0;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
 
-    // 페이지 로드시 첫 문장 페이드인
-    window.onload = () => {
-      textEl.classList.add('fade-in');
-    };
-
-    function changeEmotion() {
-      // 페이드 아웃
+    function showText(text, color) {
       textEl.classList.remove('fade-in');
-
       setTimeout(() => {
-        index = (index + 1) % sentences.length;
-        textEl.textContent = sentences[index];
-        document.body.style.backgroundColor = colors[index];
-
-        // 페이드 인
+        textEl.textContent = text;
+        document.body.style.backgroundColor = color;
         textEl.classList.add('fade-in');
-
-        // 음악 시작
-        if (bgm.paused) {
-          bgm.play().catch(() => {});
-        }
-      }, 300); // 약간 텀을 줘서 부드럽게 전환
+      }, 50);
     }
 
-    // 클릭 이벤트 연결
-    document.body.addEventListener("click", changeEmotion);
+    function changeEmotion() {
+      if (index === 1) {
+        // "그냥..." 상태일 때 자동으로 다음 문장으로 넘어가도록 설정
+        showText(sentences[index], colors[index]);
+        index++;
+        setTimeout(() => {
+          showText(sentences[index], colors[index]);
+        }, 3000); // 3초 멈춤
+        index++;
+      } else {
+        showText(sentences[index], colors[index]);
+        index = (index + 1) % sentences.length;
+      }
+
+      if (bgm.paused) {
+        bgm.play().catch(() => {}); // Autoplay 차단 대응
+      }
+    }
+
+    // 초기 텍스트 페이드인
+    window.onload = () => {
+      setTimeout(() => textEl.classList.add('fade-in'), 100);
+    };
   </script>
 </body>
 </html>
