@@ -1,3 +1,6 @@
+from IPython.display import HTML
+
+HTML("""
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -9,25 +12,23 @@
     body {
       margin: 0;
       height: 100vh;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #564166;
+      background-color: #434773;
       color: white;
       font-family: 'Gowun Dodum', sans-serif;
       font-size: 1.5rem;
       text-align: center;
       transition: background-color 1.2s ease;
-      overflow: hidden;
-      position: relative;
     }
 
     #text {
       opacity: 1;
       transition: opacity 1.2s ease;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-      z-index: 2;
-      position: relative;
+      text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+      z-index: 10;
     }
 
     .fade-out {
@@ -40,31 +41,28 @@
 
     .shooting-star {
       position: absolute;
-      top: -50px;
-      width: 4px;
-      height: 4px;
-      background: white;
-      border-radius: 50%;
-      box-shadow: 0 0 12px 6px rgba(255, 255, 255, 0.8);
-      animation: fall 1.8s ease-out forwards;
-      z-index: 1;
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0));
+      opacity: 0.8;
+      transform: rotate(-45deg);
+      animation: shoot 1.2s ease-out forwards;
     }
 
-    @keyframes fall {
-      0% {
+    @keyframes shoot {
+      from {
+        transform: translate(0, 0) rotate(-45deg);
         opacity: 1;
-        transform: translateY(0) scale(1);
       }
-      100% {
-        top: 100vh;
+      to {
+        transform: translate(-300px, 300px) rotate(-45deg);
         opacity: 0;
-        transform: translateY(200px) scale(0.3);
       }
     }
   </style>
 </head>
 <body onclick="changeEmotion()">
-  <div id="text">그냥...</div>
+  <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
 
   <script>
@@ -83,13 +81,11 @@
     ];
 
     let index = 0;
+    let isLocked = false;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
 
-    function fadeAndChangeText(text, color, slow = false) {
-      const duration = slow ? 2000 : 600;
-
-      textEl.style.transition = `opacity ${duration / 2}ms ease`;
+    function fadeAndChangeText(text, color, callback) {
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
 
@@ -98,36 +94,35 @@
         document.body.style.backgroundColor = color;
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-      }, duration / 2);
+        if (callback) callback();
+      }, 600);
     }
 
-    function createShootingStars(count = 6) {
-      for (let i = 0; i < count; i++) {
+    function createShootingStars() {
+      for (let i = 0; i < 5; i++) {
         const star = document.createElement('div');
-        star.className = 'shooting-star';
-        const leftPercent = Math.random() * 100;
-        const delay = Math.random() * 800; // 0~800ms 랜덤 지연
-
-        star.style.left = `${leftPercent}%`;
-        star.style.animationDelay = `${delay}ms`;
-
+        star.classList.add('shooting-star');
+        star.style.top = `${Math.random() * 50 + 10}px`;
+        star.style.left = `${Math.random() * window.innerWidth}px`;
         document.body.appendChild(star);
-
-        star.addEventListener('animationend', () => {
-          star.remove();
-        });
+        setTimeout(() => document.body.removeChild(star), 1200);
       }
     }
 
     function changeEmotion() {
-      const isShootingStarStage = (sentences[index] === "그냥...");
-      fadeAndChangeText(sentences[index], colors[index], isShootingStarStage);
+      if (isLocked) return;
 
-      if (isShootingStarStage) {
-        createShootingStars(); // 여러 개 생성
+      if (index === 2) {
+        isLocked = true;
+        fadeAndChangeText(sentences[index], colors[index], () => {
+          createShootingStars();  // 별똥별은 '그냥...' 페이드아웃 이후에 등장
+          index++;
+          isLocked = false;
+        });
+      } else {
+        fadeAndChangeText(sentences[index], colors[index]);
+        index = (index + 1) % sentences.length;
       }
-
-      index = (index + 1) % sentences.length;
 
       if (bgm.paused) {
         bgm.play().catch(() => {});
@@ -136,3 +131,4 @@
   </script>
 </body>
 </html>
+""")
