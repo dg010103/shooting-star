@@ -21,8 +21,12 @@
     }
 
     #text {
-      opacity: 0;
+      opacity: 1;
       transition: opacity 1.5s ease;
+    }
+
+    .fade-out {
+      opacity: 0;
     }
 
     .fade-in {
@@ -37,6 +41,7 @@
   <script>
     const sentences = [
       "별똥별이에요 어서 소원을 빌어요!",
+      "왜요..?",
       "그냥...",
       "별이 떨어지면 빌어야 하니까요..."
     ];
@@ -44,45 +49,47 @@
     const colors = [
       "#434773",
       "#494171",
-      "#564166"
+      "#564166",
+      "#5e3a5e"
     ];
 
     let index = 0;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
+    let isLocked = false;
 
-    function showText(text, color) {
-      textEl.classList.remove('fade-in');
+    function fadeAndChangeText(text, color) {
+      textEl.classList.add('fade-out');
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
+        textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-      }, 50);
+      }, 400);
     }
 
     function changeEmotion() {
+      if (isLocked) return;
+
       if (index === 1) {
-        // "그냥..." 상태일 때 자동으로 다음 문장으로 넘어가도록 설정
-        showText(sentences[index], colors[index]);
+        // 그냥... → 자동 다음 문장
+        isLocked = true;
+        fadeAndChangeText(sentences[index], colors[index]);
         index++;
         setTimeout(() => {
-          showText(sentences[index], colors[index]);
-        }, 3000); // 3초 멈춤
-        index++;
+          fadeAndChangeText(sentences[index], colors[index]);
+          index = (index + 1) % sentences.length;
+          isLocked = false;
+        }, 3000);
       } else {
-        showText(sentences[index], colors[index]);
+        fadeAndChangeText(sentences[index], colors[index]);
         index = (index + 1) % sentences.length;
       }
 
       if (bgm.paused) {
-        bgm.play().catch(() => {}); // Autoplay 차단 대응
+        bgm.play().catch(() => {});
       }
     }
-
-    // 초기 텍스트 페이드인
-    window.onload = () => {
-      setTimeout(() => textEl.classList.add('fade-in'), 100);
-    };
   </script>
 </body>
 </html>
