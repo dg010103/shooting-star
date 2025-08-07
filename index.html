@@ -55,11 +55,13 @@
     ];
 
     let index = 0;
-    let isLocked = false;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
 
-    function fadeAndChangeText(text, color, callback) {
+    function fadeAndChangeText(text, color, slow = false) {
+      const duration = slow ? 2000 : 600; // "그냥..."일 경우 느리게
+
+      textEl.style.transition = `opacity ${duration / 2}ms ease`;
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
 
@@ -68,29 +70,14 @@
         document.body.style.backgroundColor = color;
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-        if (callback) callback();
-      }, 600); // 글자 완전히 사라졌다가 다시 나타남
+      }, duration / 2);
     }
 
     function changeEmotion() {
-      if (isLocked) return;
+      const slowFade = (index === 2); // "그냥..."일 때만 느리게
+      fadeAndChangeText(sentences[index], colors[index], slowFade);
 
-      // '그냥...' 단계일 경우: 자동 전환
-      if (index === 2) {
-        isLocked = true;
-        fadeAndChangeText(sentences[index], colors[index], () => {
-          setTimeout(() => {
-            index++;
-            fadeAndChangeText(sentences[index], colors[index], () => {
-              isLocked = false;
-              index = (index + 1) % sentences.length;
-            });
-          }, 2800); // 자동 다음 문장
-        });
-      } else {
-        fadeAndChangeText(sentences[index], colors[index]);
-        index = (index + 1) % sentences.length;
-      }
+      index = (index + 1) % sentences.length;
 
       if (bgm.paused) {
         bgm.play().catch(() => {});
