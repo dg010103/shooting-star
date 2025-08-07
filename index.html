@@ -21,22 +21,22 @@
     }
 
     #text {
-      opacity: 0; /* 처음엔 숨겨진 상태 */
+      opacity: 0; /* 처음엔 안 보이게 */
       transition: opacity 1.2s ease;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); /* 글로우 강화 */
-    }
-
-    .fade-out {
-      opacity: 0;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.7); /* 글로우 */
     }
 
     .fade-in {
       opacity: 1;
     }
+
+    .fade-out {
+      opacity: 0;
+    }
   </style>
 </head>
-<body onclick="changeEmotion()">
-  <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
+<body>
+  <div id="text"></div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
 
   <script>
@@ -48,16 +48,19 @@
     ];
 
     const colors = [
-      "#434773", // 밤하늘 중 차가운 보라
-      "#494171", // 조금 더 어두운 보라
-      "#564166", // 감정의 심연
-      "#3c2c4f"  // 가장 특별한 밤하늘의 감정 (예: 보랏빛 별무리)
+      "#434773", "#494171", "#564166", "#3c2c4f"
     ];
 
     let index = 0;
     let isLocked = false;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
+
+    // ✅ 초기 텍스트 설정 및 등장
+    window.addEventListener('DOMContentLoaded', () => {
+      textEl.textContent = sentences[index];
+      textEl.classList.add('fade-in');
+    });
 
     function fadeAndChangeText(text, color, callback) {
       textEl.classList.remove('fade-in');
@@ -66,19 +69,16 @@
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
-      }, 600); // 글자 완전히 사라짐
-
-      setTimeout(() => {
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
         if (callback) callback();
-      }, 1200); // 새 글자 등장
+      }, 600);
     }
 
     function changeEmotion() {
       if (isLocked) return;
 
-      if (index === 2) { // "그냥..." 자동 전환
+      if (index === 2) { // "그냥..." 자동 다음
         isLocked = true;
         fadeAndChangeText(sentences[index], colors[index], () => {
           setTimeout(() => {
@@ -99,12 +99,8 @@
       }
     }
 
-    // ✅ 처음 페이지 로딩 시, 글자 페이드인
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(() => {
-        textEl.classList.add('fade-in');
-      }, 300); // 약간의 텀을 주고 등장
-    });
+    // ✅ 클릭 이벤트 연결
+    document.body.addEventListener('click', changeEmotion);
   </script>
 </body>
 </html>
