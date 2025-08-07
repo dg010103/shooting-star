@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>별똥별</title>
-  <!-- 고운돋움 웹폰트 with font-display swap -->
+
+  <!-- 프리로드 -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" as="style">
+  <link rel="preload" href="music.mp3" as="audio" type="audio/mpeg">
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
 
   <style>
@@ -17,25 +20,44 @@
       background-color: #434773;
       color: white;
       font-family: 'Gowun Dodum', sans-serif;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       text-align: center;
-      transition: background-color 0.8s ease;
+      transition: background-color 0.8s ease, color 0.8s ease;
     }
 
     #text {
       opacity: 1;
-      transition: opacity 1.2s ease;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      transition: opacity 0.8s ease;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     }
 
     .fade-out {
       opacity: 0;
+    }
+
+    .fade-in {
+      opacity: 1;
+    }
+
+    /* 프리렌더용 숨김 텍스트 */
+    #preload-texts {
+      visibility: hidden;
+      height: 0;
+      overflow: hidden;
+      position: absolute;
     }
   </style>
 </head>
 <body onclick="changeEmotion()">
   <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
+
+  <!-- 미리 렌더링용 텍스트 (보이지 않음) -->
+  <div id="preload-texts">
+    <div>왜요..?</div>
+    <div>그냥...</div>
+    <div>별이 떨어지면 빌어야 하니까요...</div>
+  </div>
 
   <script>
     const sentences = [
@@ -57,27 +79,27 @@
     const bgm = document.getElementById('bgm');
     let isLocked = false;
 
+    function fadeAndChangeText(text, color) {
+      textEl.classList.remove('fade-in');
+      textEl.classList.add('fade-out');
+
+      setTimeout(() => {
+        textEl.textContent = text;
+        document.body.style.backgroundColor = color;
+        textEl.classList.remove('fade-out');
+        textEl.classList.add('fade-in');
+      }, 400); // 페이드 중간쯤 교체
+    }
+
     function changeEmotion() {
       if (isLocked) return;
 
-      textEl.classList.add('fade-out');
-      isLocked = true;
+      fadeAndChangeText(sentences[index], colors[index]);
+      index = (index + 1) % sentences.length;
 
-      setTimeout(() => {
-        index = (index + 1) % sentences.length;
-        textEl.textContent = sentences[index];
-        document.body.style.backgroundColor = colors[index];
-
-        // 살짝 여유시간 후 페이드 인 (폰트 로딩 여유용)
-        setTimeout(() => {
-          textEl.classList.remove('fade-out');
-          isLocked = false;
-        }, 300); // 여유 0.3초
-
-        if (bgm.paused) {
-          bgm.play().catch(() => {});
-        }
-      }, 600); // 페이드아웃 시간
+      if (bgm.paused) {
+        bgm.play().catch(() => {});
+      }
     }
   </script>
 </body>
