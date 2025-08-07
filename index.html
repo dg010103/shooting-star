@@ -1,6 +1,3 @@
-from IPython.display import HTML
-
-HTML("""
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -27,8 +24,9 @@ HTML("""
     #text {
       opacity: 1;
       transition: opacity 1.2s ease;
-      text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
-      z-index: 10;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+      position: relative;
+      z-index: 2;
     }
 
     .fade-out {
@@ -41,21 +39,23 @@ HTML("""
 
     .shooting-star {
       position: absolute;
-      width: 80px;
-      height: 2px;
-      background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0));
+      width: 2px;
+      height: 80px;
+      background: white;
       opacity: 0.8;
-      transform: rotate(-45deg);
-      animation: shoot 1.2s ease-out forwards;
+      border-radius: 2px;
+      box-shadow: 0 0 6px 2px white;
+      transform: rotate(45deg);
+      animation: shoot 1.5s linear forwards;
     }
 
     @keyframes shoot {
-      from {
-        transform: translate(0, 0) rotate(-45deg);
+      0% {
+        transform: translate(0, 0) rotate(45deg);
         opacity: 1;
       }
-      to {
-        transform: translate(-300px, 300px) rotate(-45deg);
+      100% {
+        transform: translate(300px, 600px) rotate(45deg);
         opacity: 0;
       }
     }
@@ -81,44 +81,47 @@ HTML("""
     ];
 
     let index = 0;
-    let isLocked = false;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
+    let isLocked = false;
 
-    function fadeAndChangeText(text, color, callback) {
+    function createShootingStar() {
+      for (let i = 0; i < 5; i++) {
+        const star = document.createElement('div');
+        star.classList.add('shooting-star');
+        star.style.left = Math.random() * window.innerWidth + "px";
+        star.style.top = Math.random() * window.innerHeight / 2 + "px";
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), 1600);
+      }
+    }
+
+    function fadeAndChangeText(text, color, callback, customDuration = 600) {
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
 
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
+      }, customDuration / 2);
+
+      setTimeout(() => {
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
         if (callback) callback();
-      }, 600);
-    }
-
-    function createShootingStars() {
-      for (let i = 0; i < 5; i++) {
-        const star = document.createElement('div');
-        star.classList.add('shooting-star');
-        star.style.top = `${Math.random() * 50 + 10}px`;
-        star.style.left = `${Math.random() * window.innerWidth}px`;
-        document.body.appendChild(star);
-        setTimeout(() => document.body.removeChild(star), 1200);
-      }
+      }, customDuration);
     }
 
     function changeEmotion() {
       if (isLocked) return;
 
+      // '그냥...' → 다음 문장 전에 별똥별
       if (index === 2) {
-        isLocked = true;
         fadeAndChangeText(sentences[index], colors[index], () => {
-          createShootingStars();  // 별똥별은 '그냥...' 페이드아웃 이후에 등장
-          index++;
-          isLocked = false;
-        });
+          createShootingStar(); // ✨별똥별 떨어짐
+        }, 1600); // 느리게 페이드
+
+        index++;
       } else {
         fadeAndChangeText(sentences[index], colors[index]);
         index = (index + 1) % sentences.length;
@@ -131,4 +134,3 @@ HTML("""
   </script>
 </body>
 </html>
-""")
