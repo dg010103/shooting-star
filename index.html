@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>별똥별</title>
-  <!-- Spoqa Han Sans 웹폰트 링크 -->
-  <link href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@2.1/css/SpoqaHanSans-kr.css" rel="stylesheet" type="text/css" />
+  <link href="https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@2.1/css/SpoqaHanSans-kr.css" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -17,14 +16,14 @@
       color: white;
       font-family: 'Spoqa Han Sans', sans-serif;
       font-size: 1.5rem;
-      font-weight: 500; /* 폰트 굵기 */
+      font-weight: 500;
       text-align: center;
       transition: background-color 0.5s ease, color 0.5s ease;
     }
 
     #text {
       opacity: 0;
-      transition: opacity 1.2s ease; /* 느린 페이드 */
+      transition: opacity 1.2s ease;
     }
 
     #text.fade-in {
@@ -32,8 +31,8 @@
     }
   </style>
 </head>
-<body onclick="changeEmotion()">
-  <div id="text" class="fade-in">별똥별이에요 어서 소원을 빌어요!</div>
+<body>
+  <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
 
   <script>
@@ -55,23 +54,32 @@
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
 
-    function changeEmotion() {
-      index = (index + 1) % sentences.length;
+    // 페이지 로드시 첫 문장 페이드인
+    window.onload = () => {
+      textEl.classList.add('fade-in');
+    };
 
+    function changeEmotion() {
       // 페이드 아웃
       textEl.classList.remove('fade-in');
+
       setTimeout(() => {
+        index = (index + 1) % sentences.length;
         textEl.textContent = sentences[index];
         document.body.style.backgroundColor = colors[index];
 
         // 페이드 인
         textEl.classList.add('fade-in');
-      }, 100); // 짧은 텀 후 변경
 
-      if (bgm.paused) {
-        bgm.play().catch(() => {});
-      }
+        // 음악 시작
+        if (bgm.paused) {
+          bgm.play().catch(() => {});
+        }
+      }, 300); // 약간 텀을 줘서 부드럽게 전환
     }
+
+    // 클릭 이벤트 연결
+    document.body.addEventListener("click", changeEmotion);
   </script>
 </body>
 </html>
