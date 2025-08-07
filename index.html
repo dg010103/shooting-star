@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #434773;
+      color: white;
+      font-family: sans-serif;
+      font-size: 1.5rem;
+      text-align: center;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+  </style>
+</head>
+<body onclick="changeEmotion()">
+  <div id="text">별똥별이에요 어서 소원을 빌어요!.</div>
+  <audio id="bgm" src="music.mp3" preload="auto"></audio>
+
+  <script>
+    const sentences = [
+      "별똥별이에요 어서 소원을 빌어요!",
+      "왜요?",
+      "그냥... 외로워요..."
+    ];
+
+    const colors = [
+      "#434773", // black
+      "#494171",
+      "#564166"
+    ];
+
+    let index = 0;
+    const textEl = document.getElementById('text');
+    const bgm = document.getElementById('bgm');
+
+    function changeEmotion() {
+      index = (index + 1) % sentences.length;
+      textEl.textContent = sentences[index];
+      document.body.style.backgroundColor = colors[index];
+
+      if (bgm.paused) {
+        bgm.play().catch(() => {}); // Autoplay block 대응
+      }
+    }
+  </script>
+</body>
+</html>
