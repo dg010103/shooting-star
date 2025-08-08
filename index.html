@@ -35,8 +35,6 @@
 
     .meteor {
       position: absolute;
-      top: 40px;
-      left: 0px;
       width: 3px;
       height: 320px;
       background: linear-gradient(
@@ -52,7 +50,7 @@
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
       will-change: transform, opacity;
       pointer-events: none;
-      animation: fall var(--dur,4s) ease-out forwards;
+      animation: fall var(--dur,4.5s) ease-out forwards;
       z-index: 2;
     }
 
@@ -66,9 +64,7 @@
       height: 12px;
       background: radial-gradient(circle, white 0%, rgba(255,255,255,0.3) 100%);
       border-radius: 50%;
-      box-shadow:
-        0 0 12px white,
-        0 0 20px rgba(255,255,255,0.7);
+      box-shadow: 0 0 12px white, 0 0 20px rgba(255,255,255,0.7);
     }
 
     @keyframes fall {
@@ -77,24 +73,16 @@
       100% { opacity: 0; transform: translate3d(var(--dx,1000px), var(--dy,1000px), 0) rotate(-45deg); }
     }
 
-    /* 모바일 대응 스타일 */
-    @media (max-width: 600px) {
+    /* 모바일 대응: 텍스트 크기와 위치 조정 */
+    @media (max-width: 768px) {
       body {
-        font-size: 1rem; /* 텍스트 크기 줄임 */
+        font-size: 1rem;
+        padding: 0 20px;
       }
 
       #text {
-        transform: translateY(-40px); /* 텍스트 위치 위로 */
-      }
-
-      .meteor {
-        width: 1.5px;
-        height: 200px;
-      }
-
-      .meteor::after {
-        width: 8px;
-        height: 8px;
+        max-width: 90%;
+        font-size: 1rem;
       }
     }
   </style>
@@ -150,13 +138,14 @@
 
     function changeEmotion() {
       if (bgm.paused) bgm.play().catch(() => {});
+
       if (sentences[index] === "그냥...") {
-        fadeAndChangeText(sentences[index], colors[index], () => {
-          triggerMeteor();
-        });
+        triggerMeteor(); // ★ 페이드 아웃 시작과 동시에 실행
+        fadeAndChangeText(sentences[index], colors[index]);
       } else {
         fadeAndChangeText(sentences[index], colors[index]);
       }
+
       index = (index + 1) % sentences.length;
     }
   </script>
