@@ -4,8 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>별똥별</title>
+  <!-- 폰트 성능 최적화 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
   <style>
+    :root { color-scheme: dark; }
+
     body {
       margin: 0;
       height: 100vh;
@@ -15,10 +20,12 @@
       align-items: center;
       background-color: #434773;
       color: white;
-      font-family: 'Gowun Dodum', sans-serif;
+      font-family: 'Gowun Dodum', system-ui, -apple-system, sans-serif;
       font-size: 1.25rem;
       text-align: center;
       transition: background-color 1s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     #text {
@@ -35,8 +42,7 @@
     /* ===== 별똥별 (꼬리: 좌상, 머리: 우하) ===== */
     .meteor {
       position: absolute;
-      top: 40px;
-      left: 0px;
+      /* top/left는 JS에서 세팅 → 여기선 지정하지 않음 */
       width: 3px;
       height: 320px; /* 꼬리 길게 */
       background: linear-gradient(
@@ -48,11 +54,11 @@
       );
       opacity: 0;
       transform-origin: top left;
-      transform: rotate(-45deg); /* 좌상→우하 */
+      transform: rotate(-45deg); /* 꼬리 좌상 → 머리 우하 */
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
       will-change: transform, opacity;
       pointer-events: none;
-      animation: fall var(--dur,4.5s) ease-out forwards;
+      animation: fall var(--dur, 4.5s) cubic-bezier(.15,.6,.2,1) forwards; /* 자연스러운 낙하 */
       z-index: 2;
     }
 
@@ -61,7 +67,7 @@
       content: "";
       position: absolute;
       left: 50%;
-      bottom: -8px;
+      bottom: -8px; /* 본체보다 살짝 더 앞으로 */
       transform: translateX(-50%);
       width: 12px;
       height: 12px;
@@ -74,8 +80,13 @@
 
     @keyframes fall {
       0%   { opacity: 0; transform: translate3d(0,0,0) rotate(-45deg); }
-      10%  { opacity: 1; }
+      12%  { opacity: 1; }
       100% { opacity: 0; transform: translate3d(var(--dx,1000px), var(--dy,1000px), 0) rotate(-45deg); }
+    }
+
+    /* 모션 민감 사용자 배려 */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
@@ -113,16 +124,16 @@
       const m = document.createElement('div');
       m.classList.add('meteor');
 
-      // 시작 위치: 좌상단 일부
+      // 시작 위치: 좌상단 일부(너무 중앙 피함)
       const startX = Math.random() * (window.innerWidth * 0.25);
       const startY = Math.random() * (window.innerHeight * 0.25);
       m.style.left = `${startX}px`;
       m.style.top  = `${startY}px`;
 
-      // 이동 거리와 속도
-      const dx = 900; // 가로 이동
-      const dy = 900; // 세로 이동
-      const dur = 2.2; // 속도 느리게
+      // 이동 거리와 속도 (JS가 CSS var로 주입)
+      const dx = 900;   // 가로 이동
+      const dy = 900;   // 세로 이동
+      const dur = 2.2;  // 느리게
       m.style.setProperty('--dx', dx + 'px');
       m.style.setProperty('--dy', dy + 'px');
       m.style.setProperty('--dur', dur + 's');
