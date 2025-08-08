@@ -9,60 +9,51 @@
     body {
       margin: 0;
       height: 100vh;
-      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
       background-color: #434773;
       color: white;
       font-family: 'Gowun Dodum', sans-serif;
-      font-size: 1.25rem; /* 살짝 더 축소 (두 줄 방지) */
+      font-size: 1.3rem; /* 폰트 크기 살짝 줄임 */
       text-align: center;
-      transition: background-color 1s ease;
+      overflow: hidden;
+      transition: background-color 1.2s ease;
     }
 
     #text {
       opacity: 1;
       transition: opacity 0.8s ease;
-      text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
-      z-index: 10;
-      position: relative;
-      max-width: 80%;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
     }
 
-    .fade-out { opacity: 0; }
-    .fade-in { opacity: 1; }
+    .fade-out {
+      opacity: 0;
+    }
 
-    .meteor {
+    .fade-in {
+      opacity: 1;
+    }
+
+    /* 별똥별 스타일 */
+    .shooting-star {
       position: absolute;
-      width: 2px;                 /* 얇은 궤적 */
-      height: 110px;              /* 길고 가는 꼬리 */
-      background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 65%, rgba(255,255,255,1) 100%);
-      opacity: 0;                 /* 처음엔 보이지 않음 → 자연스러운 등장 */
-      transform-origin: top left; /* 회전 기준 */
+      width: 3px;
+      height: 100px;
+      background: linear-gradient(white, rgba(255,255,255,0));
+      opacity: 0.8;
       transform: rotate(45deg);
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
-      will-change: transform, opacity;
-      animation: fall var(--dur,1.2s) cubic-bezier(.15,.6,.2,1) forwards;
+      pointer-events: none;
+      animation: fall 1.2s ease-out forwards;
     }
 
     @keyframes fall {
       0% {
-        opacity: 0;
-        transform: translate3d(0,0,0) rotate(45deg);
-      }
-      8% {
-        opacity: 1; /* 살짝 늦게 켜져서 자연스러운 등장 */
+        transform: translate(0, 0) rotate(45deg);
+        opacity: 1;
       }
       100% {
-        /* 직선 경로 유지: 왼쪽 위 → 오른쪽 아래 */
-        transform: translate3d(var(--dx,620px), var(--dy,620px), 0) rotate(45deg);
-        opacity: 0;
-      }
-    }
-      10% { opacity: 1; }
-      100% {
-        transform: translate(800px, 800px) rotate(45deg);
+        transform: translate(600px, 600px) rotate(45deg);
         opacity: 0;
       }
     }
@@ -80,14 +71,18 @@
       "별이 떨어지면 빌어야 하니까요..."
     ];
 
-    const colors = ["#434773", "#494171", "#564166", "#3c2c4f"];
+    const colors = [
+      "#434773",
+      "#494171",
+      "#564166",
+      "#3c2c4f"
+    ];
 
     let index = 0;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
-    let meteorTriggered = false;
 
-    function fadeAndChangeText(text, color, callback) {
+    function fadeAndChangeText(text, color) {
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
 
@@ -96,57 +91,33 @@
         document.body.style.backgroundColor = color;
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-        if (callback) callback();
-      }, 500);
+      }, 400); // 중간에 완전히 사라졌다가 전환
     }
 
-    function triggerMeteors() {
-      const count = 6;
-      for (let i = 0; i < count; i++) {
-        const m = document.createElement('div');
-        m.classList.add('meteor');
-        // 시작 위치: 화면 좌측 상단 쿼드(자연스러운 유입), 너무 중앙에 몰리지 않도록 범위 확장
-        const startX = Math.random() * (window.innerWidth * 0.35);   // 0% ~ 35%
-        const startY = Math.random() * (window.innerHeight * 0.25);  // 0% ~ 25%
-        m.style.left = `${startX}px`;
-        m.style.top  = `${startY}px`;
+    function createShootingStar() {
+      for (let i = 0; i < 3; i++) {
+        const star = document.createElement('div');
+        star.classList.add('shooting-star');
+        star.style.top = `${Math.random() * 50}px`;
+        star.style.left = `${Math.random() * 50}px`;
+        document.body.appendChild(star);
 
-        // 낙하 거리와 시간에 약간씩 변주를 줘서 자연스러움 강화 (하지만 경로는 직선)
-        const dx = 560 + Math.random() * 140;  // 560 ~ 700px
-        const dy = 560 + Math.random() * 220;  // 560 ~ 780px (조금 더 길게)
-        const dur = 1.0 + Math.random() * 0.8; // 1.0s ~ 1.8s
-        m.style.setProperty('--dx', dx + 'px');
-        m.style.setProperty('--dy', dy + 'px');
-        m.style.setProperty('--dur', dur + 's');
-
-        // 미세한 시작 지연으로 군집감 완화
-        m.style.animationDelay = (Math.random() * 0.25) + 's';
-
-        document.body.appendChild(m);
-        m.addEventListener('animationend', () => m.remove());
-      }
-    }px`;
-        meteor.style.top = `${Math.random() * window.innerHeight * 0.3}px`;
-        document.body.appendChild(meteor);
-        setTimeout(() => meteor.remove(), 2000);
+        setTimeout(() => star.remove(), 1200);
       }
     }
 
     function changeEmotion() {
+      // "그냥..."일 때만 별똥별 생성
+      if (sentences[index] === "그냥...") {
+        createShootingStar();
+      }
+
+      fadeAndChangeText(sentences[index], colors[index]);
+      index = (index + 1) % sentences.length;
+
       if (bgm.paused) {
         bgm.play().catch(() => {});
       }
-
-      if (sentences[index] === "그냥..." && !meteorTriggered) {
-        fadeAndChangeText(sentences[index], colors[index], () => {
-          triggerMeteors();
-          meteorTriggered = true;
-        });
-      } else {
-        fadeAndChangeText(sentences[index], colors[index]);
-      }
-
-      index = (index + 1) % sentences.length;
     }
   </script>
 </body>
