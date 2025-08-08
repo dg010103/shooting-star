@@ -19,50 +19,74 @@
       font-size: 1.5rem;
       text-align: center;
       transition: background-color 1s ease;
+      position: relative;
     }
 
     #text {
       opacity: 1;
-      transition: opacity 0.8s ease;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      transition: opacity 0.9s ease;
+      text-shadow: 0 0 8px rgba(255,255,255,0.6);
       z-index: 10;
       position: relative;
+      max-width: 85%;
+      line-height: 1.6;
     }
 
-    .fade-out {
-      opacity: 0;
-    }
+    .fade-out { opacity: 0; }
+    .fade-in  { opacity: 1; }
 
-    .fade-in {
-      opacity: 1;
-    }
-
+    /* ✨ 별똥별: 뾰족한 머리 + 긴 꼬리, 대각선 직선 이동 */
     .meteor {
       position: absolute;
-      width: 2px;
-      height: 80px;
-      background: white;
-      box-shadow: 0 0 6px 2px white;
+      top: -12vh;        /* 화면 바깥 왼쪽-위에서 시작 */
+      left: -12vw;
+      width: 280px;      /* 꼬리 길이 */
+      height: 2px;       /* 꼬리 두께 */
       transform: rotate(45deg);
-      animation: fall 1.2s linear forwards;
+      pointer-events: none;
+      z-index: 5;
+      /* 꼬리: 왼쪽(뒤) → 오른쪽(머리)로 밝아지는 그라디언트 */
+      background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.4) 55%,
+        rgba(255,255,255,0.85) 82%,
+        #ffffff 100%
+      );
+      filter: blur(0.2px);
+      animation: diag-fall 1.6s linear forwards;
     }
 
-    @keyframes fall {
+    /* 머리(뾰족한 점) */
+    .meteor::after {
+      content: "";
+      position: absolute;
+      right: -3px;        /* 꼬리 끝보다 약간 앞으로 */
+      top: -3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 14px 6px rgba(255,255,255,0.9);
+    }
+
+    @keyframes diag-fall {
       0% {
         opacity: 0;
-        transform: translate(0, 0) rotate(45deg);
+        transform: translate(0,0) rotate(45deg);
       }
       10% {
         opacity: 1;
       }
       100% {
-        transform: translate(600px, 600px) rotate(45deg);
+        /* 화면 오른쪽-아래 바깥으로 길게 직선 이동 */
+        transform: translate(130vw, 130vh) rotate(45deg);
         opacity: 0;
       }
     }
   </style>
 </head>
-<body onclick="changeEmotion()">
+<body>
   <div id="text">별똥별이에요 어서 소원을 빌어요!</div>
   <audio id="bgm" src="music.mp3" preload="auto"></audio>
 
@@ -85,56 +109,73 @@
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
 
-    function fadeAndChangeText(text, color, callback) {
+    function createSingleMeteor() {
+      // 기존 meteor 있으면 제거 (항상 1개만)
+      document.querySelectorAll('.meteor').forEach(m => m.remove());
+
+      const m = document.createElement('div');
+      m.className = 'meteor';
+      document.body.appendChild(m);
+
+      m.addEventListener('animationend', () => m.remove());
+    }
+
+    function fadeAndChangeText(nextText, nextColor, duration = 600, onHalf = null, onEnd = null) {
+      // 클릭 반응 즉시: 페이드아웃 시작
+      textEl.style.transition = `opacity ${duration/2}ms ease`;
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
 
+      // 페이드아웃 완료 타이밍(= 절반 시점)
       setTimeout(() => {
-        textEl.textContent = text;
-        document.body.style.backgroundColor = color;
+        if (onHalf) onHalf();  // ← 여기서 별똥별 트리거 가능
+        // 텍스트/색 교체는 페이드 인 직전에
+        textEl.textContent = nextText;
+        document.body.style.backgroundColor = nextColor;
+      }, duration/2);
+
+      // 페이드 인
+      setTimeout(() => {
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-
-        if (callback) callback();
-      }, 500);
-    }
-
-    function triggerMeteors() {
-      for (let i = 0; i < 6; i++) {
-        const meteor = document.createElement('div');
-        meteor.classList.add('meteor');
-        meteor.style.left = `${Math.random() * window.innerWidth}px`;
-        meteor.style.top = `${Math.random() * window.innerHeight * 0.4}px`;
-        document.body.appendChild(meteor);
-
-        setTimeout(() => meteor.remove(), 1500);
-      }
+        if (onEnd) onEnd();
+      }, duration);
     }
 
     function changeEmotion() {
-      // 플레이어 실행
-      if (bgm.paused) {
-        bgm.play().catch(() => {});
-      }
+      // 음악은 처음 클릭 때만
+      if (bgm.paused) { bgm.play().catch(() => {}); }
 
-      // 마지막 문장 이후로 순환
-      if (index >= sentences.length) {
-        index = 0;
-      }
+      const current = sentences[index];
+      const nextIndex = (index + 1) % sentences.length;
 
-      // "그냥..."을 클릭한 후 별똥별 효과
-      if (sentences[index] === "그냥...") {
-        fadeAndChangeText(sentences[index], colors[index], () => {
-          setTimeout(() => {
-            triggerMeteors();
-          }, 500); // meteor 시작
-        });
+      // "그냥..." 단계: 느린 페이드 + 페이드아웃 직후에 별똥별 1개
+      if (current === "그냥...") {
+        fadeAndChangeText(
+          current,                   // 현재 문장 먼저 페이드아웃
+          colors[index],             // 색은 그대로 유지
+          1400,                      // 느리게
+          () => { createSingleMeteor(); }, // ← 페이드아웃 직후(절반시점)에 별똥별
+          () => {                    // 페이드인 끝나면 다음 문장으로 넘어가도록 한 번 더 터치 유도 (자동 넘김 없음)
+            // 아무 것도 안 함: 다음 터치에서 다음 문장으로
+          }
+        );
+        // 이 클릭에서는 index 유지 (사용자 다음 터치로 넘김)
       } else {
-        fadeAndChangeText(sentences[index], colors[index]);
+        // 일반 단계: 보통 속도 페이드 + 다음 문장으로 즉시 셋업
+        fadeAndChangeText(
+          sentences[nextIndex],      // 다음 문장
+          colors[nextIndex],
+          600,
+          null,
+          null
+        );
+        index = nextIndex;
       }
-
-      index++;
     }
+
+    // 바디 클릭에 연결
+    document.body.addEventListener('click', changeEmotion);
   </script>
 </body>
 </html>
