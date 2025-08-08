@@ -46,7 +46,7 @@
       );
       opacity: 0;
       transform-origin: top left;
-      transform: rotate(180deg); /* 좌상→우하 */
+      transform: rotate(0deg); /* 좌상→우하 */
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
       will-change: transform, opacity;
       pointer-events: none;
@@ -71,9 +71,9 @@
     }
 
     @keyframes fall {
-      0%   { opacity: 0; transform: translate3d(0,0,0) rotate(45deg); }
+      0%   { opacity: 0; transform: translate3d(0,0,0) rotate(0deg); }
       10%  { opacity: 1; }
-      100% { opacity: 0; transform: translate3d(var(--dx,1000px), var(--dy,1000px), 0) rotate(45deg); }
+      100% { opacity: 0; transform: translate3d(var(--dx,1000px), var(--dy,1000px), 0) rotate(0deg); }
     }
   </style>
 </head>
