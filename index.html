@@ -18,15 +18,15 @@
       font-family: 'Gowun Dodum', sans-serif;
       font-size: 1.5rem;
       text-align: center;
-      transition: background-color 1.2s ease;
+      transition: background-color 1s ease;
     }
 
     #text {
       opacity: 1;
-      transition: opacity 1.2s ease;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+      transition: opacity 0.8s ease;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      z-index: 10;
       position: relative;
-      z-index: 2;
     }
 
     .fade-out {
@@ -37,21 +37,22 @@
       opacity: 1;
     }
 
-    .shooting-star {
+    .meteor {
       position: absolute;
       width: 2px;
-      height: 100px;
+      height: 80px;
       background: white;
-      opacity: 0.8;
-      border-radius: 2px;
       box-shadow: 0 0 6px 2px white;
       transform: rotate(45deg);
-      animation: shoot 1.5s linear forwards;
+      animation: fall 1.2s linear forwards;
     }
 
-    @keyframes shoot {
+    @keyframes fall {
       0% {
+        opacity: 0;
         transform: translate(0, 0) rotate(45deg);
+      }
+      10% {
         opacity: 1;
       }
       100% {
@@ -83,64 +84,56 @@
     let index = 0;
     const textEl = document.getElementById('text');
     const bgm = document.getElementById('bgm');
-    let isLocked = false;
 
-    function createShootingStar() {
-      for (let i = 0; i < 5; i++) {
-        const star = document.createElement('div');
-        star.classList.add('shooting-star');
-
-        // 시작 위치: 화면 왼쪽 상단 30% 영역에서 랜덤
-        const startX = Math.random() * window.innerWidth * 0.3;
-        const startY = Math.random() * window.innerHeight * 0.3;
-        star.style.left = `${startX}px`;
-        star.style.top = `${startY}px`;
-
-        document.body.appendChild(star);
-        setTimeout(() => star.remove(), 1600);
-      }
-    }
-
-    function fadeAndChangeText(text, color, callback, customDuration = 600) {
+    function fadeAndChangeText(text, color, callback) {
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
 
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
-      }, customDuration / 2);
-
-      setTimeout(() => {
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
+
         if (callback) callback();
-      }, customDuration);
+      }, 500);
+    }
+
+    function triggerMeteors() {
+      for (let i = 0; i < 6; i++) {
+        const meteor = document.createElement('div');
+        meteor.classList.add('meteor');
+        meteor.style.left = `${Math.random() * window.innerWidth}px`;
+        meteor.style.top = `${Math.random() * window.innerHeight * 0.4}px`;
+        document.body.appendChild(meteor);
+
+        setTimeout(() => meteor.remove(), 1500);
+      }
     }
 
     function changeEmotion() {
-      if (isLocked) return;
-
-      // '그냥...' → 페이드 아웃 후 별똥별 등장
-      if (index === 2) {
-        isLocked = true;
-        fadeAndChangeText(sentences[index], colors[index], () => {
-          setTimeout(() => {
-            createShootingStar(); // 별똥별 떨어짐
-            index++;
-            fadeAndChangeText(sentences[index], colors[index], () => {
-              isLocked = false;
-              index = (index + 1) % sentences.length;
-            });
-          }, 1200); // 텍스트 사라진 후 잠시 있다가 별똥별 시작
-        }, 1200);
-      } else {
-        fadeAndChangeText(sentences[index], colors[index]);
-        index = (index + 1) % sentences.length;
-      }
-
+      // 플레이어 실행
       if (bgm.paused) {
         bgm.play().catch(() => {});
       }
+
+      // 마지막 문장 이후로 순환
+      if (index >= sentences.length) {
+        index = 0;
+      }
+
+      // "그냥..."을 클릭한 후 별똥별 효과
+      if (sentences[index] === "그냥...") {
+        fadeAndChangeText(sentences[index], colors[index], () => {
+          setTimeout(() => {
+            triggerMeteors();
+          }, 500); // meteor 시작
+        });
+      } else {
+        fadeAndChangeText(sentences[index], colors[index]);
+      }
+
+      index++;
     }
   </script>
 </body>
