@@ -16,7 +16,7 @@
       background-color: #434773;
       color: white;
       font-family: 'Gowun Dodum', sans-serif;
-      font-size: 1.25rem; /* 살짝 더 축소 (두 줄 방지) */
+      font-size: 1.25rem;
       text-align: center;
       transition: background-color 1s ease;
     }
@@ -35,11 +35,11 @@
 
     .meteor {
       position: absolute;
-      width: 2px;                 /* 얇은 궤적 */
-      height: 110px;              /* 길고 가는 꼬리 */
+      width: 2px;
+      height: 110px;
       background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 65%, rgba(255,255,255,1) 100%);
-      opacity: 0;                 /* 처음엔 보이지 않음 → 자연스러운 등장 */
-      transform-origin: top left; /* 회전 기준 */
+      opacity: 0;
+      transform-origin: top left;
       transform: rotate(45deg);
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
       will-change: transform, opacity;
@@ -51,18 +51,9 @@
         opacity: 0;
         transform: translate3d(0,0,0) rotate(45deg);
       }
-      8% {
-        opacity: 1; /* 살짝 늦게 켜져서 자연스러운 등장 */
-      }
-      100% {
-        /* 직선 경로 유지: 왼쪽 위 → 오른쪽 아래 */
-        transform: translate3d(var(--dx,620px), var(--dy,620px), 0) rotate(45deg);
-        opacity: 0;
-      }
-    }
       10% { opacity: 1; }
       100% {
-        transform: translate(800px, 800px) rotate(45deg);
+        transform: translate3d(var(--dx,600px), var(--dy,600px), 0) rotate(45deg);
         opacity: 0;
       }
     }
@@ -97,7 +88,7 @@
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
         if (callback) callback();
-      }, 500);
+      }, 400);
     }
 
     function triggerMeteors() {
@@ -105,30 +96,25 @@
       for (let i = 0; i < count; i++) {
         const m = document.createElement('div');
         m.classList.add('meteor');
-        // 시작 위치: 화면 좌측 상단 쿼드(자연스러운 유입), 너무 중앙에 몰리지 않도록 범위 확장
-        const startX = Math.random() * (window.innerWidth * 0.35);   // 0% ~ 35%
-        const startY = Math.random() * (window.innerHeight * 0.25);  // 0% ~ 25%
+
+        // 시작 위치: 화면 왼쪽 상단 쪽
+        const startX = Math.random() * (window.innerWidth * 0.35);
+        const startY = Math.random() * (window.innerHeight * 0.25);
         m.style.left = `${startX}px`;
         m.style.top  = `${startY}px`;
 
-        // 낙하 거리와 시간에 약간씩 변주를 줘서 자연스러움 강화 (하지만 경로는 직선)
-        const dx = 560 + Math.random() * 140;  // 560 ~ 700px
-        const dy = 560 + Math.random() * 220;  // 560 ~ 780px (조금 더 길게)
-        const dur = 1.0 + Math.random() * 0.8; // 1.0s ~ 1.8s
+        // 거리/속도 변주
+        const dx = 560 + Math.random() * 140;
+        const dy = 560 + Math.random() * 220;
+        const dur = 1.0 + Math.random() * 0.8;
         m.style.setProperty('--dx', dx + 'px');
         m.style.setProperty('--dy', dy + 'px');
         m.style.setProperty('--dur', dur + 's');
 
-        // 미세한 시작 지연으로 군집감 완화
         m.style.animationDelay = (Math.random() * 0.25) + 's';
 
         document.body.appendChild(m);
         m.addEventListener('animationend', () => m.remove());
-      }
-    }px`;
-        meteor.style.top = `${Math.random() * window.innerHeight * 0.3}px`;
-        document.body.appendChild(meteor);
-        setTimeout(() => meteor.remove(), 2000);
       }
     }
 
