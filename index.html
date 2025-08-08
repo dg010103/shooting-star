@@ -29,33 +29,53 @@
       position: relative;
       max-width: 80%;
     }
-
     .fade-out { opacity: 0; }
-    .fade-in { opacity: 1; }
+    .fade-in  { opacity: 1; }
 
+    /* ===== 단일 긴 별똥별 ===== */
     .meteor {
       position: absolute;
-      width: 2px;
-      height: 110px;
-      background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 65%, rgba(255,255,255,1) 100%);
+      width: 4px;                  /* 꼬리는 가늘고 */
+      height: 240px;               /* 길게 */
+      /* 꼬리: 위쪽은 거의 투명, 아래쪽(머리 직전)으로 갈수록 밝아짐 */
+      background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.15) 35%,
+        rgba(255,255,255,0.35) 60%,
+        rgba(255,255,255,0.75) 90%,
+        rgba(255,255,255,0.95) 98%,
+        rgba(255,255,255,0.95) 100%
+      );
       opacity: 0;
       transform-origin: top left;
       transform: rotate(45deg);
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
       will-change: transform, opacity;
-      animation: fall var(--dur,1.2s) cubic-bezier(.15,.6,.2,1) forwards;
+      pointer-events: none;
+      animation: fall var(--dur,1.4s) cubic-bezier(.15,.6,.2,1) forwards;
+      z-index: 2;
+    }
+    /* 머리(헤드): 뾰족하고 밝게, 꼬리 끝보다 살짝 앞으로 */
+    .meteor::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -6px;                /* 아래로 조금 더 나가게 */
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      background: radial-gradient(circle at 50% 50%, #fff 0%, #fff 60%, rgba(255,255,255,0.2) 100%);
+      border-radius: 50%;
+      box-shadow:
+        0 0 10px rgba(255,255,255,0.9),
+        0 0 18px rgba(255,255,255,0.6);
     }
 
     @keyframes fall {
-      0% {
-        opacity: 0;
-        transform: translate3d(0,0,0) rotate(45deg);
-      }
-      10% { opacity: 1; }
-      100% {
-        transform: translate3d(var(--dx,600px), var(--dy,600px), 0) rotate(45deg);
-        opacity: 0;
-      }
+      0%   { opacity: 0; transform: translate3d(0,0,0) rotate(45deg); }
+      10%  { opacity: 1; }
+      100% { opacity: 0; transform: translate3d(var(--dx,760px), var(--dy,760px), 0) rotate(45deg); }
     }
   </style>
 </head>
@@ -70,7 +90,6 @@
       "그냥...",
       "별이 떨어지면 빌어야 하니까요..."
     ];
-
     const colors = ["#434773", "#494171", "#564166", "#3c2c4f"];
 
     let index = 0;
@@ -78,54 +97,50 @@
     const bgm = document.getElementById('bgm');
     let meteorTriggered = false;
 
-    function fadeAndChangeText(text, color, callback) {
+    function fadeAndChangeText(text, color, cb) {
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
-
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-        if (callback) callback();
-      }, 400);
+        if (cb) cb();
+      }, 380);
     }
 
-    function triggerMeteors() {
-      const count = 6;
-      for (let i = 0; i < count; i++) {
-        const m = document.createElement('div');
-        m.classList.add('meteor');
+    // 단일 긴 별똥별 1개 (머리/꼬리 구분, 직선 경로)
+    function triggerSingleMeteor() {
+      const m = document.createElement('div');
+      m.classList.add('meteor');
 
-        // 시작 위치: 화면 왼쪽 상단 쪽
-        const startX = Math.random() * (window.innerWidth * 0.35);
-        const startY = Math.random() * (window.innerHeight * 0.25);
-        m.style.left = `${startX}px`;
-        m.style.top  = `${startY}px`;
+      // 시작 좌표: 좌상단 영역에서 랜덤 (너무 중앙 피함)
+      const startX = Math.random() * (window.innerWidth * 0.25);
+      const startY = Math.random() * (window.innerHeight * 0.2);
 
-        // 거리/속도 변주
-        const dx = 560 + Math.random() * 140;
-        const dy = 560 + Math.random() * 220;
-        const dur = 1.0 + Math.random() * 0.8;
-        m.style.setProperty('--dx', dx + 'px');
-        m.style.setProperty('--dy', dy + 'px');
-        m.style.setProperty('--dur', dur + 's');
+      m.style.left = `${startX}px`;
+      m.style.top  = `${startY}px`;
 
-        m.style.animationDelay = (Math.random() * 0.25) + 's';
+      // 거리/속도 약간 랜덤 (직선 유지)
+      const dx = 700 + Math.random() * 120;  // 더 길게
+      const dy = 700 + Math.random() * 120;
+      const dur = 1.2 + Math.random() * 0.6; // 1.2~1.8s
+      m.style.setProperty('--dx', dx + 'px');
+      m.style.setProperty('--dy', dy + 'px');
+      m.style.setProperty('--dur', dur + 's');
 
-        document.body.appendChild(m);
-        m.addEventListener('animationend', () => m.remove());
-      }
+      document.body.appendChild(m);
+      m.addEventListener('animationend', () => m.remove());
     }
 
     function changeEmotion() {
-      if (bgm.paused) {
-        bgm.play().catch(() => {});
-      }
+      // 배경음 재생 시도
+      if (bgm.paused) bgm.play().catch(() => {});
 
+      // “그냥...”에서만 단 한 번 별똥별 발사
       if (sentences[index] === "그냥..." && !meteorTriggered) {
         fadeAndChangeText(sentences[index], colors[index], () => {
-          triggerMeteors();
+          triggerSingleMeteor();
           meteorTriggered = true;
         });
       } else {
