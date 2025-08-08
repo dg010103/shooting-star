@@ -98,7 +98,7 @@
     const colors = ["#434773", "#494171", "#564166", "#3c2c4f"];
 
     // ★ 속도 설정(원하는 값으로 조정)
-    const MOBILE_DUR  = 1.6;  // 모바일에서 더 빠르게/느리게
+    const MOBILE_DUR  = 1;  // 모바일에서 더 빠르게/느리게
     const DESKTOP_DUR = 2.2;  // 데스크탑 기본
     const mqMobile = window.matchMedia('(max-width: 600px)');
 
@@ -147,7 +147,7 @@
       if (bgm.paused) bgm.play().catch(() => {});
       if (sentences[index] === "그냥...") {
         // 페이드 아웃 시작 직후 약간의 지연 후 별똥별
-        setTimeout(() => { triggerMeteor(); }, 120);
+        setTimeout(() => { triggerMeteor(); }, 300);
         fadeAndChangeText(sentences[index], colors[index]);
       } else {
         fadeAndChangeText(sentences[index], colors[index]);
