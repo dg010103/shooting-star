@@ -29,15 +29,15 @@
       position: relative;
       max-width: 80%;
     }
-    .fade-out { opacity: 0; }
-    .fade-in  { opacity: 1; }
 
-    /* ===== 단일 긴 별똥별 ===== */
+    .fade-out { opacity: 0; }
+    .fade-in { opacity: 1; }
+
+    /* ===== 별똥별 스타일 ===== */
     .meteor {
       position: absolute;
-      width: 4px;                  /* 꼬리는 가늘고 */
-      height: 240px;               /* 길게 */
-      /* 꼬리: 위쪽은 거의 투명, 아래쪽(머리 직전)으로 갈수록 밝아짐 */
+      width: 4px;
+      height: 320px; /* 길게 */
       background: linear-gradient(
         180deg,
         rgba(255,255,255,0) 0%,
@@ -49,19 +49,20 @@
       );
       opacity: 0;
       transform-origin: top left;
-      transform: rotate(45deg);
+      transform: rotate(225deg); /* 방향 반전 */
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
       will-change: transform, opacity;
       pointer-events: none;
-      animation: fall var(--dur,1.4s) cubic-bezier(.15,.6,.2,1) forwards;
+      animation: fall var(--dur,2s) cubic-bezier(.15,.6,.2,1) forwards;
       z-index: 2;
     }
-    /* 머리(헤드): 뾰족하고 밝게, 꼬리 끝보다 살짝 앞으로 */
+
+    /* 별똥별 머리 */
     .meteor::after {
       content: "";
       position: absolute;
       left: 50%;
-      bottom: -6px;                /* 아래로 조금 더 나가게 */
+      bottom: -6px;
       transform: translateX(-50%);
       width: 10px;
       height: 10px;
@@ -73,9 +74,9 @@
     }
 
     @keyframes fall {
-      0%   { opacity: 0; transform: translate3d(0,0,0) rotate(45deg); }
+      0%   { opacity: 0; transform: translate3d(0,0,0) rotate(225deg); }
       10%  { opacity: 1; }
-      100% { opacity: 0; transform: translate3d(var(--dx,760px), var(--dy,760px), 0) rotate(45deg); }
+      100% { opacity: 0; transform: translate3d(var(--dx,1000px), var(--dy,1000px), 0) rotate(225deg); }
     }
   </style>
 </head>
@@ -90,6 +91,7 @@
       "그냥...",
       "별이 떨어지면 빌어야 하니까요..."
     ];
+
     const colors = ["#434773", "#494171", "#564166", "#3c2c4f"];
 
     let index = 0;
@@ -97,34 +99,33 @@
     const bgm = document.getElementById('bgm');
     let meteorTriggered = false;
 
-    function fadeAndChangeText(text, color, cb) {
+    function fadeAndChangeText(text, color, callback) {
       textEl.classList.remove('fade-in');
       textEl.classList.add('fade-out');
+
       setTimeout(() => {
         textEl.textContent = text;
         document.body.style.backgroundColor = color;
         textEl.classList.remove('fade-out');
         textEl.classList.add('fade-in');
-        if (cb) cb();
-      }, 380);
+        if (callback) callback();
+      }, 500);
     }
 
-    // 단일 긴 별똥별 1개 (머리/꼬리 구분, 직선 경로)
-    function triggerSingleMeteor() {
+    function triggerMeteor() {
       const m = document.createElement('div');
       m.classList.add('meteor');
 
-      // 시작 좌표: 좌상단 영역에서 랜덤 (너무 중앙 피함)
-      const startX = Math.random() * (window.innerWidth * 0.25);
-      const startY = Math.random() * (window.innerHeight * 0.2);
-
+      // 시작 위치 (왼쪽 상단 쪽)
+      const startX = Math.random() * (window.innerWidth * 0.35);
+      const startY = Math.random() * (window.innerHeight * 0.25);
       m.style.left = `${startX}px`;
       m.style.top  = `${startY}px`;
 
-      // 거리/속도 약간 랜덤 (직선 유지)
-      const dx = 700 + Math.random() * 120;  // 더 길게
-      const dy = 700 + Math.random() * 120;
-      const dur = 1.2 + Math.random() * 0.6; // 1.2~1.8s
+      // 이동 거리 & 속도
+      const dx = 800 + Math.random() * 200;  // 더 길게
+      const dy = 800 + Math.random() * 200;
+      const dur = 1.8 + Math.random() * 0.8; // 느리게
       m.style.setProperty('--dx', dx + 'px');
       m.style.setProperty('--dy', dy + 'px');
       m.style.setProperty('--dur', dur + 's');
@@ -134,13 +135,13 @@
     }
 
     function changeEmotion() {
-      // 배경음 재생 시도
-      if (bgm.paused) bgm.play().catch(() => {});
+      if (bgm.paused) {
+        bgm.play().catch(() => {});
+      }
 
-      // “그냥...”에서만 단 한 번 별똥별 발사
       if (sentences[index] === "그냥..." && !meteorTriggered) {
         fadeAndChangeText(sentences[index], colors[index], () => {
-          triggerSingleMeteor();
+          triggerMeteor();
           meteorTriggered = true;
         });
       } else {
