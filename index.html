@@ -66,9 +66,7 @@
       height: 12px;
       background: radial-gradient(circle, white 0%, rgba(255,255,255,0.3) 100%);
       border-radius: 50%;
-      box-shadow:
-        0 0 12px white,
-        0 0 20px rgba(255,255,255,0.7);
+      box-shadow: 0 0 12px white, 0 0 20px rgba(255,255,255,0.7);
     }
 
     @keyframes fall {
@@ -79,23 +77,10 @@
 
     /* 모바일 대응 스타일 */
     @media (max-width: 600px) {
-      body {
-        font-size: 1rem; /* 텍스트 크기 줄임 */
-      }
-
-      #text {
-        transform: translateY(-40px); /* 텍스트 위치 위로 */
-      }
-
-      .meteor {
-        width: 1.5px;
-        height: 200px;
-      }
-
-      .meteor::after {
-        width: 8px;
-        height: 8px;
-      }
+      body { font-size: 1rem; }
+      #text { transform: translateY(-40px); }
+      .meteor { width: 1.5px; height: 200px; }
+      .meteor::after { width: 8px; height: 8px; }
     }
   </style>
 </head>
@@ -111,6 +96,11 @@
       "별이 떨어지면 빌어야 하니까요..."
     ];
     const colors = ["#434773", "#494171", "#564166", "#3c2c4f"];
+
+    // ★ 속도 설정(원하는 값으로 조정)
+    const MOBILE_DUR  = 1.6;  // 모바일에서 더 빠르게/느리게
+    const DESKTOP_DUR = 2.2;  // 데스크탑 기본
+    const mqMobile = window.matchMedia('(max-width: 600px)');
 
     let index = 0;
     const textEl = document.getElementById('text');
@@ -137,9 +127,14 @@
       m.style.left = `${startX}px`;
       m.style.top  = `${startY}px`;
 
-      const dx = 900;
-      const dy = 900;
-      const dur = 2.2;
+      // 이동 거리(원하면 모바일에서 더 짧게도 가능)
+      const isMobile = mqMobile.matches;
+      const dx = isMobile ? 750 : 900;
+      const dy = isMobile ? 750 : 900;
+
+      // ★ 모바일/데스크탑 별로 속도 분기
+      const dur = isMobile ? MOBILE_DUR : DESKTOP_DUR;
+
       m.style.setProperty('--dx', dx + 'px');
       m.style.setProperty('--dy', dy + 'px');
       m.style.setProperty('--dur', dur + 's');
@@ -151,12 +146,10 @@
     function changeEmotion() {
       if (bgm.paused) bgm.play().catch(() => {});
       if (sentences[index] === "그냥...") {
-        fadeAndChangeText(sentences[index], colors[index], () => {
-         setTimeout(() => {
-          triggerMeteor();
-        },300);
-      });
-      }else {
+        // 페이드 아웃 시작 직후 약간의 지연 후 별똥별
+        setTimeout(() => { triggerMeteor(); }, 120);
+        fadeAndChangeText(sentences[index], colors[index]);
+      } else {
         fadeAndChangeText(sentences[index], colors[index]);
       }
       index = (index + 1) % sentences.length;
