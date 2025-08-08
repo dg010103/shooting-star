@@ -32,49 +32,47 @@
     .fade-out { opacity: 0; }
     .fade-in  { opacity: 1; }
 
-    /* ===== 단일, 길고 느린 별똥별 (꼬리: 좌상, 머리: 우하) ===== */
+    /* ===== 별똥별 (꼬리: 좌상, 머리: 우하) ===== */
     .meteor {
       position: absolute;
-      width: 4px;
-      height: 320px; /* 길게 */
-      /* 위(꼬리 쪽)는 투명, 아래(머리 직전)로 갈수록 밝아짐 */
+      width: 3px;
+      height: 320px; /* 꼬리 길게 */
       background: linear-gradient(
-        180deg,
+        to bottom,
         rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.15) 35%,
-        rgba(255,255,255,0.35) 60%,
-        rgba(255,255,255,0.75) 90%,
-        rgba(255,255,255,0.95) 98%,
-        rgba(255,255,255,0.95) 100%
+        rgba(255,255,255,0.3) 40%,
+        rgba(255,255,255,0.7) 80%,
+        rgba(255,255,255,1) 100%
       );
       opacity: 0;
       transform-origin: top left;
-      transform: rotate(45deg); /* 좌상 → 우하 방향 */
+      transform: rotate(45deg); /* 좌상→우하 */
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
       will-change: transform, opacity;
       pointer-events: none;
-      animation: fall var(--dur,2.2s) cubic-bezier(.15,.6,.2,1) forwards; /* 느리게 */
+      animation: fall var(--dur,2.2s) ease-out forwards;
       z-index: 2;
     }
-    /* 머리(우하, 뾰족하고 밝게) */
+
+    /* 별똥별 머리 (밝게) */
     .meteor::after {
       content: "";
       position: absolute;
       left: 50%;
-      bottom: -6px; /* 본체보다 살짝 더 앞으로 나가게 */
+      bottom: -8px;
       transform: translateX(-50%);
-      width: 10px;
-      height: 10px;
-      background: radial-gradient(circle at 50% 50%, #fff 0%, #fff 60%, rgba(255,255,255,0.2) 100%);
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle, white 0%, rgba(255,255,255,0.3) 100%);
       border-radius: 50%;
       box-shadow:
-        0 0 10px rgba(255,255,255,0.9),
-        0 0 18px rgba(255,255,255,0.6);
+        0 0 12px white,
+        0 0 20px rgba(255,255,255,0.7);
     }
 
     @keyframes fall {
       0%   { opacity: 0; transform: translate3d(0,0,0) rotate(45deg); }
-      12%  { opacity: 1; } /* 살짝 늦게 켜져 자연스러움 */
+      10%  { opacity: 1; }
       100% { opacity: 0; transform: translate3d(var(--dx,1000px), var(--dy,1000px), 0) rotate(45deg); }
     }
   </style>
@@ -108,21 +106,21 @@
       }, 420);
     }
 
-    // 항상 한 개의 별똥별 생성 (꼬리: 좌상, 머리: 우하)
+    // 별똥별 1개 생성 (좌상 → 우하)
     function triggerMeteor() {
       const m = document.createElement('div');
       m.classList.add('meteor');
 
-      // 시작 위치: 화면 좌상단 영역(너무 중앙 피함)
-      const startX = Math.random() * (window.innerWidth * 0.35);
+      // 시작 위치: 좌상단 일부
+      const startX = Math.random() * (window.innerWidth * 0.25);
       const startY = Math.random() * (window.innerHeight * 0.25);
       m.style.left = `${startX}px`;
       m.style.top  = `${startY}px`;
 
-      // 이동 거리와 속도: 길고 느리게
-      const dx = 900 + Math.random() * 200; // 900~1100px
-      const dy = 900 + Math.random() * 200; // 900~1100px
-      const dur = 1.8 + Math.random() * 0.8; // 1.8~2.6s
+      // 이동 거리와 속도
+      const dx = 900; // 가로 이동
+      const dy = 900; // 세로 이동
+      const dur = 2.2; // 속도 느리게
       m.style.setProperty('--dx', dx + 'px');
       m.style.setProperty('--dy', dy + 'px');
       m.style.setProperty('--dur', dur + 's');
@@ -134,7 +132,6 @@
     function changeEmotion() {
       if (bgm.paused) bgm.play().catch(() => {});
 
-      // "그냥..." 단계에서는 항상 별똥별 발사
       if (sentences[index] === "그냥...") {
         fadeAndChangeText(sentences[index], colors[index], () => {
           triggerMeteor();
